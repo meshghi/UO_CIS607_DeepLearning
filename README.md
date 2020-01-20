@@ -1,3 +1,3 @@
-# UO_CIS607_DeepLearning
+## UO_CIS607_DeepLearning
 
-## I used the following template: https://www.sharelatex.com/templates/presentations/bredelediapo-master
+#### I am using [this](https://www.sharelatex.com/templates/presentations/bredelediapo-master) template
