@@ -1,0 +1,449 @@
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+%%%%%
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+%%%%%
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+
+%	TITLE PAGE
+\title[MCB for VAQ and VG]{Multimodal Compact Bilinear Pooling for Visual Question Answering and Visual Grounding} 
+\subtitle{Akira Fukui et al., 2016}
+
+\author{Mohammad Eshghi}
+%\institute[UO] 
+%{
+%University of Oregon \\
+%\medskip
+%\textit{john@smith.com}
+%}
+\date{January 31, 2020}%{\today} 
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Overview}
+\tableofcontents 
+\end{frame}
+
+
+%	PRESENTATION SLIDES
+\section{Introduction} 
+\begin{frame}
+\frametitle{Introduction: VQA}
+\begin{center}
+\includegraphics[scale=0.5]{./images/VQA}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://medium.com/paper-club/multimodal-compact-bilinear-pooling-for-visual-question-answering-and-visual-grounding-6f71bc7d0566}{\color{blue}medium post}\color{black}
+}}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{Introduction: VG}
+\begin{center}
+\includegraphics[scale=0.5]{./images/VG}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://medium.com/paper-club/multimodal-compact-bilinear-pooling-for-visual-question-answering-and-visual-grounding-6f71bc7d0566}{\color{blue}medium post}\color{black}
+}}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{Introduction}
+\begin{center}
+\includegraphics[scale=0.5]{./images/formula01}
+\end{center}
+\end{frame}
+
+%------------------------------------------------
+
+\subsection{Image encoding}
+\begin{frame}
+\frametitle{Image encoding}
+\begin{center}
+\includegraphics[scale=0.27]{./images/ImageEncoding}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://arxiv.org/pdf/1505.00468.pdf}{\color{blue}Agrawal et al., 2019}\color{black}
+}}
+\end{center}
+\end{frame}
+
+\subsection{Text encoding}
+\begin{frame}
+\frametitle{Text encoding}
+\begin{center}
+\includegraphics[scale=0.27]{./images/TextEncoding}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://arxiv.org/pdf/1505.00468.pdf}{\color{blue}Agrawal et al., 2019}\color{black}
+}}
+\end{center}
+\end{frame}
+
+\subsection{Information fusion}
+\begin{frame}
+\frametitle{Information fusion}
+\begin{center}
+\includegraphics[scale=0.35]{./images/InformationFusion}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://www.sciencedirect.com/science/article/pii/S1566253518308893}{\color{blue}Zhang et al., 2019}\color{black}
+}}
+\end{center}
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\section{Multimodal Compact Bilinear Pooling} 
+\subsection{Why MCB?}
+\begin{frame}
+\frametitle{Why MCB?}
+\begin{itemize}
+\item Vector operations are too simplistic to fully capture the relationships between images and text
+\item So many different architectures that depend of the data set for non-linear neural networks to learn the interaction between the visual and textual features
+\item Research like \href{https://www.sciencedirect.com/science/article/pii/S1566253518308893}{\color{blue}Zhang et al., 2019} \color{black}confirm that Bilinear Pooling is the promising road to take for information fusion
+\item In bilinear pooling (aka a full outer product of vectors)  the number of resulting parameters is too high to be practical. For example,
+\begin{itemize}
+\item if the image and text vectors are of length 2048
+\item the resulting matrix would have \begin{math}2048^{2}\end{math} elements
+\item and we’d need to fully connect that matrix to 3000 classes
+\item it results in \begin{math}~\end{math}12.5 billion learnable parameters
+\end{itemize}
+\item Therefore, introducing MCB to capture the discriminating abilities of bilinear pooling with only a a few thousand parameters (16k) while preserving backpropability
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\subsection{What is MCB?}
+\begin{frame}
+\frametitle{What is MCB?}
+\textbf{Bilinear Pooling} simply means the outer product of the two input vectors; this is what happens when you multiply every element of one vector of length N by every element of the other vector of length M, resulting in a matrix of size NxM.
+
+\vspace{0.2cm}
+
+\textbf{Compact} bilinear pooling means the authors applied dimensionality reduction techniques to get almost the same level of power with way fewer parameters. \textbf{I think} it is  something similar to principal components analysis.
+
+\vspace{0.2cm}
+
+\textbf{Multimodal} is a term that describes this specific use case but doesn’t really mean anything different.
+
+\vspace{0.2cm}
+
+\emph{\color{red}\textbf{Compact Bilinear Pooling} could be done on any two vectors, practically speaking it doesn’t matter at all that one vector happens to represent one mode (images) while the other represents another (text).}\color{black}
+\end{frame}
+
+%------------------------------------------------
+
+\subsection{How to MCB?}
+\begin{frame}
+\frametitle{How to MCB?}
+\begin{center}
+\includegraphics[scale=0.5]{./images/How_to_MCB01}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{How to MCB?}
+\begin{center}
+\includegraphics[scale=0.45]{./images/How_to_MCB02}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{How to MCB?}
+\begin{center}
+\includegraphics[scale=0.45]{./images/How_to_MCB03}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{How to MCB?}
+MCB is used at three different points where visual and textual representations need to be combined
+\begin{enumerate} 
+  \item to predict spatial attention in the image 
+  \item to predict an answer to the question
+  \item to relate the encoded multiple-choice answers to the combined question+image space (this only applies to the multiple choice problem)
+  \end{enumerate}  
+ 
+ \vspace{0.3cm}
+ 
+They also use attention maps and additional training data, which feels a bit like sacrificing experimental purity to achieve state-of-the-art results.
+\end{frame}
+%------------------------------------------------
+
+\subsection{Architecture of MCB}
+\begin{frame}
+\frametitle{Architecture of MCB}
+\begin{center}
+\includegraphics[scale=0.65]{./images/MCB_Architecture01}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{Architecture of MCB}
+\begin{center}
+\includegraphics[scale=0.65]{./images/MCB_Architecture02}
+\end{center}
+\end{frame}
+%------------------------------------------------
+%------------------------------------------------
+
+\section{Experiments and Results} 
+\subsection{Datasets}
+\begin{frame}
+\frametitle{Datasets}
+\begin{enumerate} 
+  \item \textbf{Visual Question Answering (VQA)}
+  \item \textbf{Visual Genome}
+  \item \textbf{Visual7W}
+  \end{enumerate}  
+\end{frame}
+%------------------------------------------------
+
+\subsection{VQA}
+\begin{frame}
+\frametitle{VQA}
+\begin{center}
+\includegraphics[scale=0.4]{./images/VQA_Result01}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{VQA}
+\begin{center}
+\includegraphics[scale=0.5]{./images/VQA_Result02}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{VQA}
+\begin{center}
+\includegraphics[scale=0.3]{./images/VQA_Result03}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{VQA}
+\begin{center}
+\includegraphics[scale=0.5]{./images/VQA_Result04}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{VQA}
+\begin{center}
+\includegraphics[scale=0.5]{./images/VQA_Result05}
+\end{center}
+\end{frame}
+%------------------------------------------------
+
+\subsection{Visual Grounding}
+\begin{frame}
+\frametitle{Visual Grounding}
+\begin{center}
+\includegraphics[scale=0.5]{./images/VG_Result01}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{Visual Grounding}
+\begin{center}
+\includegraphics[scale=0.27]{./images/VG_Result02}
+\end{center}
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\section{Conclusion} 
+\begin{frame}
+\frametitle{Bullet Points}
+\begin{itemize}
+\item We propose the Multimodal Compact Bilinear Pooling (MCB) to combine visual and text representations. For visual question answering, our architecture with attention and multiple MCBs gives significant improvements on two VQA datasets compared to state-of-the-art. In the visual grounding task, introducing MCB pooling leads to improved phrase localization accuracy, indicating better interaction between query phrase representations and visual representations of proposal bounding boxes.
+\item \href{https://github.com/akirafukui/vqa-mcb}{The code is available in \color{blue}github} \color{black}
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\Huge{\centerline{Thank You}}
+\end{frame}
+
+
+%
+%\begin{frame}
+%\frametitle{Bullet Points}
+%\begin{itemize}
+%\item Lorem ipsum dolor sit amet, consectetur adipiscing elit
+%\item Aliquam blandit faucibus nisi, sit amet dapibus enim tempus eu
+%\item Nulla commodo, erat quis gravida posuere, elit lacus lobortis est, quis porttitor odio mauris at libero
+%\item Nam cursus est eget velit posuere pellentesque
+%\item Vestibulum faucibus velit a augue condimentum quis convallis nulla gravida
+%\end{itemize}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Blocks of Highlighted Text}
+%\begin{block}{Block 1}
+%Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
+%\end{block}
+%
+%\begin{block}{Block 2}
+%Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
+%\end{block}
+%
+%\begin{block}{Block 3}
+%Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
+%\end{block}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Multiple Columns}
+%\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
+%
+%\column{.45\textwidth} % Left column and width
+%\textbf{Heading}
+%\begin{enumerate}
+%\item Statement
+%\item Explanation
+%\item Example
+%\end{enumerate}
+%
+%\column{.5\textwidth} % Right column and width
+%Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
+%
+%\end{columns}
+%\end{frame}
+%
+%%------------------------------------------------
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Table}
+%\begin{table}
+%\begin{tabular}{l l l}
+%\toprule
+%\textbf{Treatments} & \textbf{Response 1} & \textbf{Response 2}\\
+%\midrule
+%Treatment 1 & 0.0003262 & 0.562 \\
+%Treatment 2 & 0.0015681 & 0.910 \\
+%Treatment 3 & 0.0009271 & 0.296 \\
+%\bottomrule
+%\end{tabular}
+%\caption{Table caption}
+%\end{table}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Theorem}
+%\begin{theorem}[Mass--energy equivalence]
+%$E = mc^2$
+%\end{theorem}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
+%\frametitle{Verbatim}
+%\begin{example}[Theorem Slide Code]
+%\begin{verbatim}
+%\begin{frame}
+%\frametitle{Theorem}
+%\begin{theorem}[Mass--energy equivalence]
+%$E = mc^2$
+%\end{theorem}
+%\end{frame}\end{verbatim}
+%\end{example}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{Figure}
+%Uncomment the code on this slide to include your own image from the same directory as the template .TeX file.
+%%\begin{figure}
+%%\includegraphics[width=0.8\linewidth]{test}
+%%\end{figure}
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}[fragile] % Need to use the fragile option when verbatim is used in the slide
+%\frametitle{Citation}
+%An example of the \verb|\cite| command to cite within the presentation:\\~
+%
+%This statement requires citation \cite{p1}.
+%\end{frame}
+%
+%%------------------------------------------------
+%
+%\begin{frame}
+%\frametitle{References}
+%\footnotesize{
+%\begin{thebibliography}{99} % Beamer does not support BibTeX so references must be inserted manually as below
+%\bibitem[Smith, 2012]{p1} John Smith (2012)
+%\newblock Title of the publication
+%\newblock \emph{Journal Name} 12(3), 45 -- 678.
+%\end{thebibliography}
+%}
+%\end{frame}
+%
+
+%----------------------------------------------------------------------------------------
+
+\end{document} 
