@@ -53,19 +53,21 @@
 
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{subfig}
 
 
 %	TITLE PAGE
 \title[MCB for VAQ and VG]{Multimodal Compact Bilinear Pooling for Visual Question Answering and Visual Grounding} 
-\subtitle{Akira Fukui et al., 2016}
 
-\author{Mohammad Eshghi}
-%\institute[UO] 
-%{
-%University of Oregon \\
-%\medskip
+\author{Akira Fukui et al., 2016}
+
+\institute[] 
+{
+Presented by: \\
+\medskip
 %\textit{john@smith.com}
-%}
+Mohammad Eshghi
+}
 \date{January 31, 2020}%{\today} 
 
 \begin{document}
@@ -139,6 +141,16 @@
 \begin{frame}
 \frametitle{Information fusion}
 \begin{center}
+\includegraphics[scale=0.27]{./images/InformationFusion0}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://arxiv.org/pdf/1505.00468.pdf}{\color{blue}Agrawal et al., 2019}\color{black}
+}}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{Information fusion}
+\begin{center}
 \includegraphics[scale=0.35]{./images/InformationFusion}
 \end{center}
 \begin{center}
@@ -151,42 +163,55 @@
 %------------------------------------------------
 
 \section{Multimodal Compact Bilinear Pooling} 
+\subsection{What is MCB?}
+\begin{frame}
+\frametitle{What is MCB?}
+\textbf{Multimodal Pooling} is combining the two vector representations of image and question (i.e. Multimodal), respectively. This creates a joint representation of the two vectors.
+
+\vspace{0.2cm}
+
+\textbf{Bilinear Pooling} means the outer product of the two input vectors
+\begin{itemize}
+\item multiply every element of one vector of length N by every element of the other vector of length N, resulting in a matrix of size NxN.
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Compact} bilinear pooling means reducing the dimensionality to get almost the same level of power with way fewer parameters.
+
+\end{frame}
+
+\begin{frame}
+\frametitle{What is MCB?}
+\begin{center}
+\includegraphics[scale=0.42]{./images/imfus.png}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://medium.com/ai2-blog/the-lure-of-the-outer-product-4addd2e7f95e}{\color{blue}The lure of the outer product}\color{black}
+}}
+\end{center}
+\end{frame}
+
+%------------------------------------------------
+
 \subsection{Why MCB?}
+
 \begin{frame}
 \frametitle{Why MCB?}
 \begin{itemize}
 \item Vector operations are too simplistic to fully capture the relationships between images and text
-\item So many different architectures that depend of the data set for non-linear neural networks to learn the interaction between the visual and textual features
+\item So many non-linear neural networks to learn the interaction between the visual and textual features
 \item Research like \href{https://www.sciencedirect.com/science/article/pii/S1566253518308893}{\color{blue}Zhang et al., 2019} \color{black}confirm that Bilinear Pooling is the promising road to take for information fusion
-\item In bilinear pooling (aka a full outer product of vectors)  the number of resulting parameters is too high to be practical. For example,
+\item Bilinear pooling is a very rich representation that allows a full multiplicative interaction between all elements of both vectors capturing any possible relationship
+\item However, in bilinear pooling  the number of resulting parameters is too high to be practical. For example,
 \begin{itemize}
 \item if the image and text vectors are of length 2048
 \item the resulting matrix would have \begin{math}2048^{2}\end{math} elements
 \item and we’d need to fully connect that matrix to 3000 classes
 \item it results in \begin{math}~\end{math}12.5 billion learnable parameters
 \end{itemize}
-\item Therefore, introducing MCB to capture the discriminating abilities of bilinear pooling with only a a few thousand parameters (16k) while preserving backpropability
+\item Therefore, introducing MCB to capture the discriminating abilities of bilinear pooling with only a a few thousand parameters (16k)
 \end{itemize}
-\end{frame}
-
-%------------------------------------------------
-
-\subsection{What is MCB?}
-\begin{frame}
-\frametitle{What is MCB?}
-\textbf{Bilinear Pooling} simply means the outer product of the two input vectors; this is what happens when you multiply every element of one vector of length N by every element of the other vector of length M, resulting in a matrix of size NxM.
-
-\vspace{0.2cm}
-
-\textbf{Compact} bilinear pooling means the authors applied dimensionality reduction techniques to get almost the same level of power with way fewer parameters. \textbf{I think} it is  something similar to principal components analysis.
-
-\vspace{0.2cm}
-
-\textbf{Multimodal} is a term that describes this specific use case but doesn’t really mean anything different.
-
-\vspace{0.2cm}
-
-\emph{\color{red}\textbf{Compact Bilinear Pooling} could be done on any two vectors, practically speaking it doesn’t matter at all that one vector happens to represent one mode (images) while the other represents another (text).}\color{black}
 \end{frame}
 
 %------------------------------------------------
@@ -201,7 +226,70 @@
 \begin{frame}
 \frametitle{How to MCB?}
 \begin{center}
-\includegraphics[scale=0.45]{./images/How_to_MCB02}
+\includegraphics[scale=0.5]{./images/mcb}
+\end{center}
+\begin{center}
+\hspace*{12pt}\hbox{\scriptsize Credit:\thinspace{\itshape \href{https://medium.com/ai2-blog/the-lure-of-the-outer-product-4addd2e7f95e}{\color{blue}The lure of the outer product}\color{black}
+}}
+\end{center}
+\end{frame}
+\begin{frame}
+\frametitle{How to MCB?}
+MCB is approximated by
+\begin{itemize}
+\item randomly projecting the image and text representations to a \color{black}higher \color{black} dimensional space using Count Sketch
+\item and then convolving both vectors efficiently by using element-wise product in FFT space
+\item $z = w[x \otimes q]$
+\item about 12.5 billion parameters for 2048 images and texts and 3000 classes!
+\end{itemize}
+MCB key feature
+\begin{itemize}
+\item using Count Sketch over outer product to use convolution, and FFT
+\begin{itemize}
+\item projecting the outer product to a lower dimensional space
+\item avoiding computing the outer product directly:
+\begin{itemize}
+\item $\Psi(x \otimes q, h, s) = \Psi(x, h, s) * \Psi(q, h, s) $
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{frame}
+\begin{frame}
+\frametitle{How to MCB?}
+%\begin{center}
+%\includegraphics[scale=0.45]{./images/How_to_MCB0201}
+%\end{center}
+\begin{figure}%
+    \centering
+    %\subfloat[]{{\includegraphics[width=5cm]{./images/How_to_MCB0202} }}%
+    {\includegraphics[width=5cm]{./images/How_to_MCB0202} }%
+    \qquad
+    {\includegraphics[width=5cm]{./images/How_to_MCB0201} }%
+    %\caption{}%
+    \label{fig:example}%
+\end{figure}
+\end{frame}
+%\begin{frame}
+%\frametitle{How to MCB?}
+%MCB is used at three different points where visual and textual representations need to be combined
+%\begin{enumerate} 
+%  \item to predict spatial attention in the image 
+%  \item to predict an answer to the question
+%  \item to relate the encoded multiple-choice answers to the combined question+image space (this only applies to the multiple choice problem)
+%  \end{enumerate}  
+% 
+% \vspace{0.3cm}
+% 
+%They also use attention maps and additional training data, which feels a bit like sacrificing experimental purity to achieve state-of-the-art results.
+%\end{frame}
+\begin{frame}
+\frametitle{Attention models}
+Attention models use an attention score between the question and each region in the image. The resulting attention vector helps the model to focus on the most relevant region(s) in the image to answer the given question.
+\end{frame}
+\begin{frame}
+\frametitle{How to MCB?}
+\begin{center}
+\includegraphics[scale=0.3]{./images/attention}
 \end{center}
 \end{frame}
 \begin{frame}
@@ -210,19 +298,7 @@
 \includegraphics[scale=0.45]{./images/How_to_MCB03}
 \end{center}
 \end{frame}
-\begin{frame}
-\frametitle{How to MCB?}
-MCB is used at three different points where visual and textual representations need to be combined
-\begin{enumerate} 
-  \item to predict spatial attention in the image 
-  \item to predict an answer to the question
-  \item to relate the encoded multiple-choice answers to the combined question+image space (this only applies to the multiple choice problem)
-  \end{enumerate}  
- 
- \vspace{0.3cm}
- 
-They also use attention maps and additional training data, which feels a bit like sacrificing experimental purity to achieve state-of-the-art results.
-\end{frame}
+
 %------------------------------------------------
 
 \subsection{Architecture of MCB}
@@ -245,11 +321,21 @@ They also use attention maps and additional training data, which feels a bit lik
 \subsection{Datasets}
 \begin{frame}
 \frametitle{Datasets}
+For Visual Question Answering
 \begin{enumerate} 
-  \item \textbf{Visual Question Answering (VQA)}
-  \item \textbf{Visual Genome}
-  \item \textbf{Visual7W}
+  \item MSCOCO
+  \item Visual Genome
+  \item Visual7W
   \end{enumerate}  
+  
+   \vspace{0.5cm}
+
+  
+For Visual Grounding
+  \begin{enumerate} 
+  \item Flickr30k
+  \item ReflectItGame
+  \end{enumerate} 
 \end{frame}
 %------------------------------------------------
 
@@ -305,10 +391,17 @@ They also use attention maps and additional training data, which feels a bit lik
 
 \section{Conclusion} 
 \begin{frame}
-\frametitle{Bullet Points}
+\frametitle{Conclusion}
 \begin{itemize}
-\item We propose the Multimodal Compact Bilinear Pooling (MCB) to combine visual and text representations. For visual question answering, our architecture with attention and multiple MCBs gives significant improvements on two VQA datasets compared to state-of-the-art. In the visual grounding task, introducing MCB pooling leads to improved phrase localization accuracy, indicating better interaction between query phrase representations and visual representations of proposal bounding boxes.
-\item \href{https://github.com/akirafukui/vqa-mcb}{The code is available in \color{blue}github} \color{black}
+\item At the heart of MCB is the Count Sketch function
+\item Count Sketch function actually limits MCB critically:
+\begin{itemize}
+
+\item  Hash collisions result in errors caused by the Count Sketch operation
+\item To lower the probability of a collision, we should choose a larger counter array, 
+\item For MCB to be effective, the length of the Count Sketch vector needs to be very large $(\sim16k)$.
+\end{itemize}
+\item \href{https://github.com/akirafukui/vqa-mcb}{The code for the paper is available in \color{blue}github} \color{black}
 \end{itemize}
 \end{frame}
 
